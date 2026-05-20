@@ -12,8 +12,10 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
           jdk = pkgs.temurin-bin-25;
+
+          paperVersion = "26.1.2-64";
           paperJar = pkgs.fetchurl {
-            url = "https://fill-data.papermc.io/v1/objects/830d4eb5c15cbd802a9ec9f2f54eaaaeb9511958339aec983fd0c88bad21d940/paper-26.1.2-64.jar";
+            url = "https://fill-data.papermc.io/v1/objects/830d4eb5c15cbd802a9ec9f2f54eaaaeb9511958339aec983fd0c88bad21d940/paper-${paperVersion}.jar";
             hash = "sha256-gw1OtcFcvYAqnsny9U6qrrlRGVgzmuyYP9DIi60h2UA=";
           };
         in {
@@ -36,6 +38,7 @@
             shellHook = ''
               echo "$(java -version 2>&1)"
               echo "$(gradle --version | grep '^Gradle')"
+              echo "Paper ${paperVersion}"
             '';
           };
         });
