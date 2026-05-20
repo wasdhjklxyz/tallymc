@@ -5,3 +5,7 @@ description: Single score per player from cumulative stats and advancements.
 author: uiop <uiop@wasdhjkl.xyz>
 website: https://tallymc.com
 api-version: '26.1.2'
+commands:
+  tally:
+    description: Show a player's score.
+    usage: /tally [player]

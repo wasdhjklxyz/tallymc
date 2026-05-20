@@ -1,5 +1,7 @@
 package com.tallymc;
 
+import com.tallymc.command.TallyCommand;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -10,6 +12,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class TallyMC extends JavaPlugin implements Listener {
   @Override
   public void onEnable() {
+    TallyCommand cmd = new TallyCommand();
+    getCommand("tally").setExecutor(cmd);
+
     Bukkit.getPluginManager().registerEvents(this, this);
     getLogger().info("TallyMC enabled");
   }
