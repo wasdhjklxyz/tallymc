@@ -17,7 +17,6 @@
             packages = [
               jdk
               pkgs.git
-              pkgs.just
               pkgs.gradle_9
             ];
 
