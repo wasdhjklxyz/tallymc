@@ -27,7 +27,7 @@
             };
 
             shellHook = ''
-              echo "$(java -version 2>&1 | head -1)"
+              echo "$(java -version 2>&1)"
               echo "$(gradle --version | grep '^Gradle')"
             '';
           };
