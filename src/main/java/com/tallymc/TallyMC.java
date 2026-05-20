@@ -14,6 +14,7 @@ public class TallyMC extends JavaPlugin implements Listener {
   public void onEnable() {
     TallyCommand cmd = new TallyCommand();
     getCommand("tally").setExecutor(cmd);
+    getCommand("tally").setTabCompleter(cmd);
 
     Bukkit.getPluginManager().registerEvents(this, this);
     getLogger().info("TallyMC enabled");
