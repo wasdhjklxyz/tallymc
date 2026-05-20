@@ -17,6 +17,7 @@
             packages = [
               jdk
               pkgs.git
+              pkgs.gnumake
               pkgs.gradle_9
             ];
 
