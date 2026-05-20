@@ -1,5 +1,9 @@
 .gradle/
 build/
 run/
+.settings/
+bin/
 
 paper-*.jar
+.classpath
+.project

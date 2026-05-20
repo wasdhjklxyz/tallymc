@@ -25,6 +25,7 @@
               pkgs.git
               pkgs.gnumake
               pkgs.gradle_9
+              pkgs.jdt-language-server
             ];
 
             env = {
