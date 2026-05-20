@@ -29,6 +29,8 @@
               JAVA_HOME = "${jdk}";
               GRADLE_OPTS = "-Dorg.gradle.java.home=${jdk} -Dorg.gradle.java.installations.auto-download=false";
               PAPER_JAR = "${paperJar}";
+              SERVER_PORT = 12345;
+              SERVER_MEM = "2G";
             };
 
             shellHook = ''

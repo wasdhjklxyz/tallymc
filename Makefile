@@ -1,8 +1,8 @@
 JAR   = $(wildcard build/libs/TallyMC-*.jar)
 PAPER ?= $(PAPER_JAR)
 RUN   := run
-PORT  ?= 12345
-MEM   ?= 2G
+PORT  ?= $(SERVER_PORT)
+MEM   ?= $(SERVER_MEM)
 
 .PHONY: build lock clean version server-init run deploy
 
