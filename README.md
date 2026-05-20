@@ -1,4 +1,4 @@
-# StatsMC
+# TallyMC
 
 A Minecraft plugin that calculates a single networth-style number for each
 player, computed from cumulative stats and advancements. Weights are tuned so
