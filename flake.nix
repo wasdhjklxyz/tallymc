@@ -18,7 +18,7 @@
               jdk
               pkgs.git
               pkgs.just
-              pkgs.gradle
+              pkgs.gradle_9
             ];
 
             env = {
