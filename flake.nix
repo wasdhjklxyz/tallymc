@@ -12,6 +12,10 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
           jdk = pkgs.temurin-bin-25;
+          paperJar = pkgs.fetchurl {
+            url = "https://fill-data.papermc.io/v1/objects/830d4eb5c15cbd802a9ec9f2f54eaaaeb9511958339aec983fd0c88bad21d940/paper-26.1.2-64.jar";
+            hash = "sha256-gw1OtcFcvYAqnsny9U6qrrlRGVgzmuyYP9DIi60h2UA=";
+          };
         in {
           default = pkgs.mkShell {
             packages = [
@@ -24,6 +28,7 @@
             env = {
               JAVA_HOME = "${jdk}";
               GRADLE_OPTS = "-Dorg.gradle.java.home=${jdk} -Dorg.gradle.java.installations.auto-download=false";
+              PAPER_JAR = "${paperJar}";
             };
 
             shellHook = ''

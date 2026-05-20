@@ -1,5 +1,5 @@
 JAR   = $(wildcard build/libs/TallyMC-*.jar)
-PAPER := paper.jar
+PAPER ?= $(PAPER_JAR)
 RUN   := run
 PORT  ?= 12345
 MEM   ?= 2G
@@ -26,7 +26,7 @@ server-init:
 
 run: build server-init
 	cp $(JAR) $(RUN)/plugins/
-	cd $(RUN) && java -Xmx$(MEM) -jar ../$(PAPER) --nogui
+	cd $(RUN) && java -Xmx$(MEM) -jar $(PAPER) --nogui
 
 deploy: build
 	cp $(JAR) $(RUN)/plugins/
