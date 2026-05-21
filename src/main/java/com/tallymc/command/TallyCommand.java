@@ -39,7 +39,7 @@ public class TallyCommand implements CommandExecutor, TabCompleter {
     }
 
     Result r = Calculator.compute(target);
-    sender.sendMessage("Mining: " + r.miningFrac());
+    sender.sendMessage("Mining: " + r.miningTally());
 
     sender.sendMessage("Hello, world!");
     return true;
