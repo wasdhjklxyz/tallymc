@@ -19,6 +19,7 @@ public class ScoreboardListener implements Listener {
 
   @EventHandler
   public void onQuit(PlayerQuitEvent e) {
+    scoreboard.remove(e.getPlayer());
     scoreboard.refreshAll();
   }
 }

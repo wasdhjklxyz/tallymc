@@ -173,6 +173,7 @@ public class ScoreboardManager {
   }
 
   public void remove(Player p) {
+    persistFinal(p);
     boards.remove(p.getUniqueId());
     p.playerListName(null);
   }
@@ -261,5 +262,13 @@ public class ScoreboardManager {
         .build());
     meta.setPower(1);
     fw.setFireworkMeta(meta);
+  }
+
+  public void persistFinal(Player p) {
+    Calculator.Result r = Calculator.compute(p);
+    int s = (int) Math.round(r.tally());
+    store.put(p.getUniqueId(), p.getName(), s,
+              r.miningTally(), r.combatTally(), r.explorationTally(),
+              r.survivalTally(), r.advancementTally());
   }
 }
