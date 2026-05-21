@@ -24,13 +24,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.ToDoubleFunction;
 
 public class ScoreboardManager {
-  private static final int MAX_RANKS = 3;
+  private static final int MAX_RANKS = 5;
   private final TallyStore store;
   private final Map<UUID, Scoreboard> boards = new HashMap<>();
   private volatile UUID leaderOverall, leaderMining, leaderCombat,
                         leaderExploration, leaderSurvival, leaderAdvancement;
+
+  enum RankMode { TOTAL, MINING, COMBAT, EXPLORATION, SURVIVAL, ADVANCEMENT }
+
+  private static RankMode modeForSecond(int sec) {
+    int s = sec % 45;
+    if (s < 30)  return RankMode.TOTAL;
+    if (s < 33) return RankMode.MINING;
+    if (s < 36) return RankMode.COMBAT;
+    if (s < 39) return RankMode.EXPLORATION;
+    if (s < 42) return RankMode.SURVIVAL;
+    return RankMode.ADVANCEMENT;
+  }
+
+  public void tickCycle(int second) {
+    RankMode mode = modeForSecond(second);
+    for (Player p : Bukkit.getOnlinePlayers()) {
+      render(p, mode);
+    }
+  }
 
   private static final class Leader {
     double best = Double.NEGATIVE_INFINITY;
@@ -38,13 +58,9 @@ public class ScoreboardManager {
     boolean tied = false;
 
     void consider(UUID candidate, double value) {
-      if (value > best) {
-        best = value;
-        id = candidate;
-        tied = false;
-      } else if (value == best) {
-        tied = true;
-      }
+      double v = Math.round(value);
+      if (v > best) { best = v; id = candidate; tied = false; }
+      else if (v == best) { tied = true; }
     }
 
     UUID result() {
@@ -78,9 +94,8 @@ public class ScoreboardManager {
     celebrate(prevSurvival,    leaderSurvival,    Color.fromRGB(0xFF55FF));
     celebrate(prevAdvancement, leaderAdvancement, Color.fromRGB(0xFFFF55));
 
-    List<TallyStore.Entry> ranked = store.ranked();
     for (Player p : Bukkit.getOnlinePlayers()) {
-      render(p, ranked);
+      render(p, RankMode.TOTAL);
       updateTabName(p);
     }
   }
@@ -92,8 +107,22 @@ public class ScoreboardManager {
               r.miningTally(), r.combatTally(), r.explorationTally(),
               r.survivalTally(), r.advancementTally());
     recomputeLeaders();
-    render(p, store.ranked());
+    render(p, RankMode.TOTAL);
     updateTabName(p);
+  }
+
+  public void remove(Player p) {
+    persistFinal(p);
+    boards.remove(p.getUniqueId());
+    p.playerListName(null);
+  }
+
+  public void persistFinal(Player p) {
+    Calculator.Result r = Calculator.compute(p);
+    int s = (int) Math.round(r.tally());
+    store.put(p.getUniqueId(), p.getName(), s,
+              r.miningTally(), r.combatTally(), r.explorationTally(),
+              r.survivalTally(), r.advancementTally());
   }
 
   private void recomputeLeaders() {
@@ -118,7 +147,7 @@ public class ScoreboardManager {
     leaderAdvancement = advancement.result();
   }
 
-  private void render(Player viewer, List<TallyStore.Entry> ranked) {
+  private void render(Player viewer, RankMode mode) {
     Scoreboard board = boards.computeIfAbsent(viewer.getUniqueId(),
         k -> Bukkit.getScoreboardManager().getNewScoreboard());
 
@@ -130,38 +159,75 @@ public class ScoreboardManager {
         Component.text("Tally", NamedTextColor.GOLD, TextDecoration.BOLD));
     obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-    Calculator.Result r = Calculator.compute(viewer);
     UUID v = viewer.getUniqueId();
 
-    List<Component> lines = new ArrayList<>();
+    List<TallyStore.Entry> ranked;
+    String header;
+    ToDoubleFunction<TallyStore.Entry> value;
+    switch (mode) {
+      case MINING -> {
+        ranked = store.rankedBy(TallyStore.Entry::mining);
+        header = "⛏ Mining"; value = TallyStore.Entry::mining;
+      }
+      case COMBAT -> {
+        ranked = store.rankedBy(TallyStore.Entry::combat);
+        header = "⚔ Combat"; value = TallyStore.Entry::combat;
+      }
+      case EXPLORATION -> {
+        ranked = store.rankedBy(TallyStore.Entry::exploration);
+        header = "✦ Exploration"; value = TallyStore.Entry::exploration;
+      }
+      case SURVIVAL -> {
+        ranked = store.rankedBy(TallyStore.Entry::survival);
+        header = "❤ Survival"; value = TallyStore.Entry::survival;
+      }
+      case ADVANCEMENT -> {
+        ranked = store.rankedBy(TallyStore.Entry::advancement);
+        header = "★ Advancement"; value = TallyStore.Entry::advancement;
+      }
+      default -> {
+        ranked = store.ranked();
+        header = "𝍸 Total"; value = e -> e.tally();
+      }
+    }
 
+    List<Component> lines = new ArrayList<>();
     lines.add(Component.text("Rankings", NamedTextColor.DARK_GRAY, TextDecoration.BOLD));
+    //lines.add(Component.text(header, modeColor(mode)));
 
     int shown = Math.min(MAX_RANKS, ranked.size());
     for (int i = 0; i < shown; i++) {
-      lines.add(rankLine(i, ranked.get(i)));
+      lines.add(rankLine(i, ranked.get(i), value, mode));
     }
 
-    int viewerRank = -1;
-    for (int i = 0; i < ranked.size(); i++) {
-      if (ranked.get(i).id().equals(v)) { viewerRank = i; break; }
-    }
-    if (viewerRank >= shown) {
-      lines.add(Component.text("  ...", NamedTextColor.DARK_GRAY));
-      lines.add(rankLine(viewerRank, ranked.get(viewerRank)));
-    }
+    // int viewerRank = -1;
+    // for (int i = 0; i < ranked.size(); i++) {
+    //   if (ranked.get(i).id().equals(v)) { viewerRank = i; break; }
+    // }
+    // if (viewerRank >= shown) {
+    //   lines.add(Component.text("  ...", NamedTextColor.DARK_GRAY));
+    //   lines.add(rankLine(viewerRank, ranked.get(viewerRank), value));
+    // }
 
     lines.add(blank(0));
     lines.add(Component.text("Personal", NamedTextColor.DARK_GRAY, TextDecoration.BOLD));
-    lines.add(catLine(" ⛏", "Mining", r.miningTally(), NamedTextColor.AQUA,
+
+    TallyStore.Entry me = store.get(v);
+    double mMin = me != null ? me.mining()      : 0;
+    double mCom = me != null ? me.combat()      : 0;
+    double mExp = me != null ? me.exploration() : 0;
+    double mSur = me != null ? me.survival()    : 0;
+    double mAdv = me != null ? me.advancement() : 0;
+
+    lines.add(catLine(" ⛏", "Mining", mMin, NamedTextColor.AQUA,
                       v.equals(leaderMining)));
-    lines.add(catLine(" ⚔", "Combat", r.combatTally(), NamedTextColor.RED,
+    lines.add(catLine(" ⚔", "Combat", mCom, NamedTextColor.RED,
                       v.equals(leaderCombat)));
-    lines.add(catLine(" ✦", "Exploration", r.explorationTally(), NamedTextColor.GREEN,
+    lines.add(catLine(" ✦", "Exploration", mExp, NamedTextColor.GREEN,
                       v.equals(leaderExploration)));
-    lines.add(catLine(" ❤", "Survival", r.survivalTally(), NamedTextColor.LIGHT_PURPLE,
+    lines.add(catLine(" ❤", "Survival", mSur, NamedTextColor.LIGHT_PURPLE,
                       v.equals(leaderSurvival)));
-    lines.add(catLine(" ★", "Advancement", r.advancementTally(), NamedTextColor.YELLOW,
+    lines.add(catLine(" ★", "Advancement", mAdv, NamedTextColor.YELLOW,
                       v.equals(leaderAdvancement)));
 
     int score = lines.size();
@@ -172,10 +238,65 @@ public class ScoreboardManager {
     viewer.setScoreboard(board);
   }
 
-  public void remove(Player p) {
-    persistFinal(p);
-    boards.remove(p.getUniqueId());
-    p.playerListName(null);
+  private Component rankLine(int index, TallyStore.Entry e,
+                             ToDoubleFunction<TallyStore.Entry> value,
+                             RankMode mode) {
+    NamedTextColor numColor = modeColor(mode);
+    var b = Component.text();
+
+    if (mode == RankMode.TOTAL) {
+      boolean crowned = hasCrown(e.id());
+      b.append(Component.text(" "))
+       .append(crownsFor(e.id()));
+      if (crowned) {
+        b.append(Component.text(" "));
+      }
+      b.append(Component.text(e.name() + " ", NamedTextColor.GRAY))
+       .append(Component.text(String.format("%.0f", value.applyAsDouble(e)),
+                              NamedTextColor.WHITE));
+    } else {
+      if (index == 0) {
+        b.append(Component.text(" "))
+         .append(crown(numColor));
+      } else {
+        b.append(Component.text("  "));
+      }
+      b.append(Component.text(" " + e.name() + " ", NamedTextColor.GRAY))
+       .append(Component.text(String.format("%.0f", value.applyAsDouble(e)),
+                              numColor));
+    }
+    return b.build();
+  }
+
+  private static Component crown(NamedTextColor color) {
+    return Component.text("♛", color);
+  }
+
+  private Component crownsFor(UUID id) {
+    var c = Component.text();
+    if (id.equals(leaderOverall)) {
+      c.append(Component.text("♛", NamedTextColor.WHITE));
+    }
+    if (id.equals(leaderMining))      c.append(crown(NamedTextColor.AQUA));
+    if (id.equals(leaderCombat))      c.append(crown(NamedTextColor.RED));
+    if (id.equals(leaderExploration)) c.append(crown(NamedTextColor.GREEN));
+    if (id.equals(leaderSurvival))    c.append(crown(NamedTextColor.LIGHT_PURPLE));
+    if (id.equals(leaderAdvancement)) c.append(crown(NamedTextColor.YELLOW));
+    return c.build();
+  }
+
+  public Component crownsFor(Player p) {
+    return crownsFor(p.getUniqueId());
+  }
+
+  public boolean hasCrown(Player p) {
+    return hasCrown(p.getUniqueId());
+  }
+
+  public boolean hasCrown(UUID id) {
+    return id.equals(leaderOverall) || id.equals(leaderMining) ||
+           id.equals(leaderCombat) || id.equals(leaderExploration) ||
+           id.equals(leaderSurvival) || id.equals(leaderAdvancement);
   }
 
   private void updateTabName(Player p) {
@@ -186,37 +307,15 @@ public class ScoreboardManager {
     p.playerListName(name);
   }
 
-  private static Component crown(NamedTextColor color) {
-    return Component.text("♛", color);
-  }
-
-  public Component crownsFor(Player p) {
-    UUID id = p.getUniqueId();
-    var c = Component.text();
-    if (id.equals(leaderOverall))     c.append(crown(NamedTextColor.GOLD));
-    if (id.equals(leaderMining))      c.append(crown(NamedTextColor.AQUA));
-    if (id.equals(leaderCombat))      c.append(crown(NamedTextColor.RED));
-    if (id.equals(leaderExploration)) c.append(crown(NamedTextColor.GREEN));
-    if (id.equals(leaderSurvival))    c.append(crown(NamedTextColor.LIGHT_PURPLE));
-    if (id.equals(leaderAdvancement)) c.append(crown(NamedTextColor.YELLOW));
-    return c.build();
-  }
-
-  public boolean hasCrown(Player p) {
-    UUID id = p.getUniqueId();
-    return id.equals(leaderOverall) || id.equals(leaderMining)
-        || id.equals(leaderCombat) || id.equals(leaderExploration)
-        || id.equals(leaderSurvival) || id.equals(leaderAdvancement);
-  }
-
   private static Component catLine(String icon, String name, double value,
                                    NamedTextColor color, boolean isLeader) {
     var b = Component.text();
-    if (isLeader) {
-      b.append(Component.text(" ♛" + icon + " ", color));
-    } else {
-      b.append(Component.text(" " + icon + " ", color));
-    }
+    // if (isLeader) {
+    //   b.append(Component.text(" ♛" + icon + " ", color));
+    // } else {
+    //   b.append(Component.text(" " + icon + " ", color));
+    // }
+    b.append(Component.text(icon + " ", color));
     b.append(Component.text(name + " ", NamedTextColor.GRAY));
     b.append(Component.text(String.format("%.0f", value), color));
     return b.build();
@@ -227,17 +326,6 @@ public class ScoreboardManager {
     obj.getScore(entry).setScore(score);
   }
 
-  private static Component rankLine(int index, TallyStore.Entry e) {
-    Component prefix = (index == 0)
-        ? Component.text(" ♛ ", NamedTextColor.GOLD)
-        : Component.text(" ");
-    return Component.text()
-        .append(prefix)
-        .append(Component.text(e.name() + " ", NamedTextColor.GRAY))
-        .append(Component.text(String.valueOf(e.tally()), NamedTextColor.WHITE))
-        .build();
-  }
-
   private static Component blank(int n) {
     return Component.text("\u00A7r".repeat(n + 1));
   }
@@ -245,7 +333,6 @@ public class ScoreboardManager {
   private void celebrate(UUID oldLeader, UUID newLeader, Color color) {
     if (newLeader == null) return;
     if (newLeader.equals(oldLeader)) return;
-
     Player p = Bukkit.getPlayer(newLeader);
     if (p == null) return;
     spawnFirework(p, color);
@@ -264,11 +351,14 @@ public class ScoreboardManager {
     fw.setFireworkMeta(meta);
   }
 
-  public void persistFinal(Player p) {
-    Calculator.Result r = Calculator.compute(p);
-    int s = (int) Math.round(r.tally());
-    store.put(p.getUniqueId(), p.getName(), s,
-              r.miningTally(), r.combatTally(), r.explorationTally(),
-              r.survivalTally(), r.advancementTally());
+  private static NamedTextColor modeColor(RankMode mode) {
+    return switch (mode) {
+      case MINING      -> NamedTextColor.AQUA;
+      case COMBAT      -> NamedTextColor.RED;
+      case EXPLORATION -> NamedTextColor.GREEN;
+      case SURVIVAL    -> NamedTextColor.LIGHT_PURPLE;
+      case ADVANCEMENT -> NamedTextColor.YELLOW;
+      default          -> NamedTextColor.WHITE;
+    };
   }
 }

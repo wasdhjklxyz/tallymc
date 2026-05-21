@@ -3,6 +3,7 @@ package com.tallymc;
 import com.tallymc.command.TallyCommand;
 import com.tallymc.scoreboard.ScoreboardManager;
 import com.tallymc.scoreboard.ScoreboardListener;
+import com.tallymc.scoreboard.CycleTask;
 import com.tallymc.chat.ChatListener;
 import com.tallymc.store.TallyStore;
 
@@ -22,6 +23,7 @@ public class TallyMC extends JavaPlugin {
 
     this.store = new TallyStore(this);
     this.scoreboard = new ScoreboardManager(store);
+    CycleTask.start(this, scoreboard);
     for (Player p : Bukkit.getOnlinePlayers()) {
       scoreboard.refresh(p);
     }
@@ -33,6 +35,7 @@ public class TallyMC extends JavaPlugin {
         new ChatListener(scoreboard), this);
     Bukkit.getScheduler().runTaskTimer(
         this, store::save, 20L, 1200L);
+
 
     getLogger().info("TallyMC enabled");
   }

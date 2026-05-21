@@ -85,4 +85,14 @@ public class TallyStore {
     } catch (IOException ex) {
     }
   }
+
+  public List<Entry> rankedBy(java.util.function.ToDoubleFunction<Entry> key) {
+    List<Entry> list = new ArrayList<>(data.values());
+    list.sort((a, b) -> Double.compare(key.applyAsDouble(b), key.applyAsDouble(a)));
+    return list;
+  }
+
+  public Entry get(UUID id) {
+    return data.get(id);
+  }
 }
