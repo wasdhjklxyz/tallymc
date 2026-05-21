@@ -28,13 +28,13 @@ public class TallyMC extends JavaPlugin {
       scoreboard.refresh(p);
     }
     Bukkit.getScheduler().runTaskTimer(
-        this, scoreboard::refreshAll, 20L, 1200L);
+        this, scoreboard::refreshAll, 20L, 200L);
     Bukkit.getPluginManager().registerEvents(
         new ScoreboardListener(scoreboard), this);
     Bukkit.getPluginManager().registerEvents(
         new ChatListener(scoreboard), this);
     Bukkit.getScheduler().runTaskTimer(
-        this, store::save, 20L, 1200L);
+        this, store::save, 20L, 200L);
 
 
     getLogger().info("TallyMC enabled");
