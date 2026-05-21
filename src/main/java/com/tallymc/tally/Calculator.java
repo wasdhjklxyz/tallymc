@@ -11,7 +11,7 @@ public class Calculator {
     double miningTally      = Mining.raw(player);
     double combatTally      = Combat.raw(player);
     double explorationTally = Exploration.raw(player);
-    double survivalTally    = 0.0;
+    double survivalTally    = Survival.raw(player);
     double advancementTally = 0.0;
 
     double tally = miningTally + combatTally + explorationTally +
