@@ -1,5 +1,8 @@
 package com.tallymc.command;
 
+import com.tallymc.tally.Calculator;
+import com.tallymc.tally.Calculator.Result;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -35,7 +38,8 @@ public class TallyCommand implements CommandExecutor, TabCompleter {
       }
     }
 
-    target.giveExpLevels(10);
+    Result r = Calculator.compute(target);
+    sender.sendMessage("Mining: " + r.miningFrac());
 
     sender.sendMessage("Hello, world!");
     return true;
