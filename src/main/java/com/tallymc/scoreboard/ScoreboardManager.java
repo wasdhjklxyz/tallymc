@@ -133,12 +133,12 @@ public class ScoreboardManager {
     UUID id = p.getUniqueId();
     var name = Component.text();
 
-    if (id.equals(leaderOverall))     name.append(crown(NamedTextColor.GOLD) + " ");
-    if (id.equals(leaderMining))      name.append(crown(NamedTextColor.AQUA) + " ");
-    if (id.equals(leaderCombat))      name.append(crown(NamedTextColor.RED) + " ");
-    if (id.equals(leaderExploration)) name.append(crown(NamedTextColor.GREEN) + " ");
-    if (id.equals(leaderSurvival))    name.append(crown(NamedTextColor.LIGHT_PURPLE) + " ");
-    if (id.equals(leaderAdvancement)) name.append(crown(NamedTextColor.YELLOW) + " ");
+    if (id.equals(leaderOverall))     name.append(crown(NamedTextColor.GOLD));
+    if (id.equals(leaderMining))      name.append(crown(NamedTextColor.AQUA));
+    if (id.equals(leaderCombat))      name.append(crown(NamedTextColor.RED));
+    if (id.equals(leaderExploration)) name.append(crown(NamedTextColor.GREEN));
+    if (id.equals(leaderSurvival))    name.append(crown(NamedTextColor.LIGHT_PURPLE));
+    if (id.equals(leaderAdvancement)) name.append(crown(NamedTextColor.YELLOW));
 
     name.append(Component.text(p.getName(), NamedTextColor.WHITE));
     p.playerListName(name.build());
