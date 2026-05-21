@@ -61,9 +61,19 @@ public class Weights {
 
   public static final double EXPLORE_BIOME     = 20.0;
   public static final double EXPLORE_STRUCTURE = 30.0;
-  public static final double DIV_WALK_CM       = 1_000_00.0; // 1.0 km in cm
-  public static final double DIV_BOAT_CM       = 1_500_00.0; // 1.5 km in cm
-  public static final double DIV_ELYTRA_CM     = 2_000_00.0; // 2.0 km in cm
+
+  public static final double DIV_WALK_CM        =  8_000_00.0;  //  8 km / pt
+  public static final double DIV_SPRINT_CM      = 10_000_00.0;  // 10 km / pt
+  public static final double DIV_SWIM_CM        =  6_000_00.0;  //  6 km / pt
+  public static final double DIV_CLIMB_CM       =  5_000_00.0;  //  5 km / pt
+  public static final double DIV_BOAT_CM        = 15_000_00.0;  // 15 km / pt
+  public static final double DIV_HORSE_CM       = 15_000_00.0;  // 15 km / pt
+  public static final double DIV_MINECART_CM    = 18_000_00.0;  // 18 km / pt
+  public static final double DIV_ELYTRA_CM      = 25_000_00.0;  // 25 km / pt
+  public static final double DIV_STRIDER_CM     =  6_000_00.0;  //  6 km / pt
+  public static final double DIV_PIG_CM         =  5_000_00.0;  //  5 km / pt
+  public static final double DIV_HAPPY_GHAST_CM = 12_000_00.0;  // 12 km / pt
+  public static final double DIV_NAUTILUS_CM    = 10_000_00.0;  // 10 km / pt
 
   public static final double SURVIVAL_PER_HOUR           =  2.0;
   public static final double SURVIVAL_PER_ANIMAL_BRED    =  1.0;
