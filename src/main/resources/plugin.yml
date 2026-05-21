@@ -1,5 +1,5 @@
 name: TallyMC
-version: '${version}'
+version: 'v1.1'
 main: com.tallymc.TallyMC
 description: Single score per player from cumulative stats and advancements.
 author: uiop <uiop@wasdhjkl.xyz>
