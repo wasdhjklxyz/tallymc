@@ -12,7 +12,12 @@ import java.util.Map;
 import java.util.UUID;
 
 public class TallyStore {
-  public record Entry(UUID id, String name, int tally, long lastSeen) {}
+
+  public record Entry(UUID id, String name, int tally,
+                       double mining, double combat, double exploration,
+                       double survival, double advancement,
+                       long lastSeen) {}
+
   private final File file;
   private final Map<UUID, Entry> data = new HashMap<>();
 
@@ -21,8 +26,12 @@ public class TallyStore {
     load();
   }
 
-  public void put(UUID id, String name, int tally) {
-    data.put(id, new Entry(id, name, tally, System.currentTimeMillis()));
+  public void put(UUID id, String name, int tally,
+                  double mining, double combat, double exploration,
+                  double survival, double advancement) {
+    data.put(id, new Entry(id, name, tally, mining, combat, exploration,
+                           survival, advancement,
+                           System.currentTimeMillis()));
   }
 
   public List<Entry> ranked() {
@@ -31,16 +40,27 @@ public class TallyStore {
     return list;
   }
 
+  public List<Entry> entries() {
+    return new ArrayList<>(data.values());
+  }
+
   public void load() {
     if (!file.exists()) return;
     YamlConfiguration yml = YamlConfiguration.loadConfiguration(file);
     for (String key : yml.getKeys(false)) {
       try {
         UUID id = UUID.fromString(key);
-        String name = yml.getString(key + ".name", "?");
-        int tally   = yml.getInt(key + ".tally", 0);
-        long seen   = yml.getLong(key + ".lastSeen", 0L);
-        data.put(id, new Entry(id, name, tally, seen));
+        Entry e = new Entry(
+            id,
+            yml.getString(key + ".name", "?"),
+            yml.getInt(key + ".tally", 0),
+            yml.getDouble(key + ".mining", 0),
+            yml.getDouble(key + ".combat", 0),
+            yml.getDouble(key + ".exploration", 0),
+            yml.getDouble(key + ".survival", 0),
+            yml.getDouble(key + ".advancement", 0),
+            yml.getLong(key + ".lastSeen", 0L));
+        data.put(id, e);
       } catch (IllegalArgumentException ignored) {
       }
     }
@@ -50,9 +70,14 @@ public class TallyStore {
     YamlConfiguration yml = new YamlConfiguration();
     for (Entry e : data.values()) {
       String k = e.id().toString();
-      yml.set(k + ".name",     e.name());
-      yml.set(k + ".tally",    e.tally());
-      yml.set(k + ".lastSeen", e.lastSeen());
+      yml.set(k + ".name",        e.name());
+      yml.set(k + ".tally",       e.tally());
+      yml.set(k + ".mining",      e.mining());
+      yml.set(k + ".combat",      e.combat());
+      yml.set(k + ".exploration", e.exploration());
+      yml.set(k + ".survival",    e.survival());
+      yml.set(k + ".advancement", e.advancement());
+      yml.set(k + ".lastSeen",    e.lastSeen());
     }
     try {
       file.getParentFile().mkdirs();
