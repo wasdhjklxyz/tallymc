@@ -9,7 +9,7 @@ public class Calculator {
 
   public static Result compute(Player player) {
     double miningTally      = Mining.raw(player);
-    double combatTally      = 0.0;
+    double combatTally      = Combat.raw(player);
     double explorationTally = 0.0;
     double survivalTally    = 0.0;
     double advancementTally = 0.0;
