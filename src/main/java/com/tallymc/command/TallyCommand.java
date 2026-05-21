@@ -12,11 +12,17 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.format.TextColor;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class TallyCommand implements CommandExecutor, TabCompleter {
+  private static final TextColor BORDER = TextColor.color(0x4A4A4A);
+  private static final TextColor TITLE  = TextColor.color(0xFFD24A);
+  private static final TextColor LABEL  = TextColor.color(0xB8B8B8);
+
   @Override
   public boolean onCommand(@NotNull CommandSender sender,
                            @NotNull Command command, @NotNull String label,
@@ -38,16 +44,57 @@ public class TallyCommand implements CommandExecutor, TabCompleter {
       }
     }
 
-    Result r = Calculator.compute(target);
-    sender.sendMessage(line("Mining", r.miningTally()));
-
-    sender.sendMessage("Hello, world!");
+    showTally(sender, target);
     return true;
   }
 
-  private static Component line(String name, double tally) {
-    return Component.text(
-        String.format("  %-12s %.2f", name, tally), NamedTextColor.GRAY);
+  private boolean showTally(CommandSender sender, Player target) {
+    Result r = Calculator.compute(target);
+    Component bar = Component.text(
+        "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", BORDER);
+    String name = target.getName() != null ? target.getName() : "Unkown";
+
+    sender.sendMessage(bar);
+    sender.sendMessage(Component.text()
+        .append(Component.text(
+            "  " + name,
+            TextColor.color(0xFFFFFF), TextDecoration.BOLD))
+        .append(Component.text(
+            "'s Tally",
+            TITLE, TextDecoration.BOLD))
+        .build());
+
+    sender.sendMessage(bar);
+    sender.sendMessage(line(
+          "⛏", "Mining", r.miningTally(), TextColor.color(0x4FC3F7)));
+    sender.sendMessage(line(
+          "⚔", "Combat", r.combatTally(), TextColor.color(0xEF5350)));
+    sender.sendMessage(line(
+          "✦", "Exploration", r.explorationTally(), TextColor.color(0x66BB6A)));
+    sender.sendMessage(line(
+          "❤", "Survival", r.survivalTally(), TextColor.color(0xCE93D8)));
+    sender.sendMessage(line(
+          "★", "Advancement", r.advancementTally(), TextColor.color(0xFFCA28)));
+
+    sender.sendMessage(bar);
+    sender.sendMessage(Component.text()
+        .append(Component.text("  Total ", TITLE, TextDecoration.BOLD))
+        .append(Component.text(
+            String.format("%.0f", r.tally()),
+            TextColor.color(0xFFFFFF), TextDecoration.BOLD))
+        .build());
+    sender.sendMessage(bar);
+
+    return true;
+  }
+
+  private static Component line(String icon, String name, double tally,
+                                TextColor color) {
+    return Component.text()
+        .append(Component.text("  " + icon + " ", color))
+        .append(Component.text(name + " ", LABEL))
+        .append(Component.text(String.format("%.0f", tally), color))
+        .build();
   }
 
   @Override
