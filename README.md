@@ -13,18 +13,18 @@ by a **fixed par target** (not the live server max), giving a 0–1 fraction. Th
 fractions are weighted and summed, then scaled to 0–100.
 
 ```
-networth = 100 × (0.25 × min(1, mining_raw      / par_mining) +
-                  0.25 × min(1, combat_raw      / par_combat) +
-                  0.20 × min(1, explore_raw     / par_explore) +
-                  0.10 × min(1, survival_raw    / par_survival) +
-                  0.10 × min(1, advancement_raw / par_advancement))
+tally = 100 × (0.25 × min(1, mining_raw      / par_mining) +
+               0.25 × min(1, combat_raw      / par_combat) +
+               0.20 × min(1, explore_raw     / par_explore) +
+               0.10 × min(1, survival_raw    / par_survival) +
+               0.10 × min(1, advancement_raw / par_advancement))
 ```
 
 ### Why fixed par instead of server-max
 
 A par target is a configurable "this is what a 100% in this category looks
 like" reference value. Because it does not depend on other players, a player's
-networth **only changes when that player actually does something**. It never
+tally **only changes when that player actually does something**. It never
 drops because someone else mined more debris. This makes the leaderboard a
 stable ranking rather than a moving target.
 
@@ -109,7 +109,7 @@ deaths               × -10      (mild penalty, keeps it honest)
 ```
 
 The raw survival score is **clamped to a minimum of 0**, so a player with many
-deaths cannot drag their total networth negative.
+deaths cannot drag their total tally negative.
 
 **Default par_survival: `300`**
 
@@ -141,7 +141,7 @@ is not auto-generated.
 | Survival    | 0.10   | 300         |
 | Advancement | 0.10   | 800         |
 
-Category weights sum to 1.00. Final networth is on a 0–100 scale.
+Category weights sum to 1.00. Final tally is on a 0–100 scale.
 
 ## Tuning checklist
 
