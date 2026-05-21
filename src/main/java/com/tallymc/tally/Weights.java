@@ -65,8 +65,12 @@ public class Weights {
   public static final double DIV_BOAT_CM       = 1_500_00.0; // 1.5 km in cm
   public static final double DIV_ELYTRA_CM     = 2_000_00.0; // 2.0 km in cm
 
-  public static final double SURVIVAL_PER_HOUR  =  2.0;
-  public static final double SURVIVAL_PER_DEATH = -10.0;
+  public static final double SURVIVAL_PER_HOUR           =  2.0;
+  public static final double SURVIVAL_PER_ANIMAL_BRED    =  1.0;
+  public static final double SURVIVAL_PER_DAMAGE_DEALT   =  0.05; // per HP
+  public static final double SURVIVAL_PER_DAMAGE_TAKEN   = -0.03; // per HP
+  public static final double SURVIVAL_PER_DAMAGE_BLOCKED =  0.10; // per HP
+  public static final double SURVIVAL_PER_DEATH          = -10.0;
 
   public enum Tier {
     COMMON(5.0), UNCOMMON(15.0), HARD(40.0), EXTREME(300.0);
