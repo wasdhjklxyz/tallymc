@@ -7,9 +7,9 @@ import java.util.Map;
 
 public class Weights {
   public static final Map<Material, Double> ORE_WEIGHTS = Map.ofEntries(
-      Map.entry(Material.ANCIENT_DEBRIS,   40.0),
+      Map.entry(Material.ANCIENT_DEBRIS,   30.0),
       Map.entry(Material.EMERALD_ORE,      25.0),
-      Map.entry(Material.DIAMOND_ORE,      15.0),
+      Map.entry(Material.DIAMOND_ORE,      10.0),
       Map.entry(Material.GOLD_ORE,          3.0),
       Map.entry(Material.LAPIS_ORE,         3.0),
       Map.entry(Material.REDSTONE_ORE,      2.0),
@@ -61,9 +61,9 @@ public class Weights {
 
   public static final double EXPLORE_BIOME     = 20.0;
   public static final double EXPLORE_STRUCTURE = 30.0;
-  public static final double DIV_WALK_CM       = 10_000_00.0; // 10 km in cm
-  public static final double DIV_BOAT_CM       = 15_000_00.0; // 15 km in cm
-  public static final double DIV_ELYTRA_CM     = 20_000_00.0; // 20 km in cm
+  public static final double DIV_WALK_CM       = 1_000_00.0; // 1.0 km in cm
+  public static final double DIV_BOAT_CM       = 1_500_00.0; // 1.5 km in cm
+  public static final double DIV_ELYTRA_CM     = 2_000_00.0; // 2.0 km in cm
 
   public static final double SURVIVAL_PER_HOUR  =  2.0;
   public static final double SURVIVAL_PER_DEATH = -10.0;
