@@ -22,7 +22,7 @@ public class TallyMC extends JavaPlugin {
     getCommand("tally").setTabCompleter(cmd);
 
     this.store = new TallyStore(this);
-    this.scoreboard = new ScoreboardManager(store);
+    this.scoreboard = new ScoreboardManager(this, store);
     CycleTask.start(this, scoreboard);
     for (Player p : Bukkit.getOnlinePlayers()) {
       scoreboard.refresh(p);
