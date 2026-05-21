@@ -24,8 +24,8 @@ import java.util.UUID;
 public class ScoreboardManager {
   private static final int MAX_RANKS = 3;
   private final Map<UUID, Scoreboard> boards = new HashMap<>();
-  private UUID leaderOverall, leaderMining, leaderCombat,
-               leaderExploration, leaderSurvival, leaderAdvancement;
+  private volatile UUID leaderOverall, leaderMining, leaderCombat,
+                        leaderExploration, leaderSurvival, leaderAdvancement;
 
   public void refreshAll() {
     List<Map.Entry<Player, Integer>> ranked = new ArrayList<>();
@@ -183,5 +183,15 @@ public class ScoreboardManager {
     if (id.equals(leaderSurvival))    c.append(crown(NamedTextColor.LIGHT_PURPLE));
     if (id.equals(leaderAdvancement)) c.append(crown(NamedTextColor.YELLOW));
     return c.build();
+  }
+
+  public boolean hasCrown(Player p) {
+    UUID id = p.getUniqueId();
+    return id.equals(leaderOverall)
+        || id.equals(leaderMining)
+        || id.equals(leaderCombat)
+        || id.equals(leaderExploration)
+        || id.equals(leaderSurvival)
+        || id.equals(leaderAdvancement);
   }
 }

@@ -3,6 +3,7 @@ package com.tallymc;
 import com.tallymc.command.TallyCommand;
 import com.tallymc.scoreboard.ScoreboardManager;
 import com.tallymc.scoreboard.ScoreboardListener;
+import com.tallymc.chat.ChatListener;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -29,6 +30,8 @@ public class TallyMC extends JavaPlugin implements Listener {
         this, scoreboard::refreshAll, 20L, 1200L);
     Bukkit.getPluginManager().registerEvents(
         new ScoreboardListener(scoreboard), this);
+    Bukkit.getPluginManager().registerEvents(
+        new ChatListener(scoreboard), this);
 
     getLogger().info("TallyMC enabled");
   }
