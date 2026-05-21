@@ -39,10 +39,15 @@ public class TallyCommand implements CommandExecutor, TabCompleter {
     }
 
     Result r = Calculator.compute(target);
-    sender.sendMessage("Mining: " + r.miningTally());
+    sender.sendMessage(line("Mining", r.miningTally()));
 
     sender.sendMessage("Hello, world!");
     return true;
+  }
+
+  private static Component line(String name, double tally) {
+    return Component.text(
+        String.format("  %-12s %.2f", name, tally), NamedTextColor.GRAY);
   }
 
   @Override
