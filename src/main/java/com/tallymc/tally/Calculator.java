@@ -8,15 +8,15 @@ public class Calculator {
                        double advancementTally) {}
 
   public static Result compute(Player player) {
-    double miningTally = Mining.raw(player);
-    double combatTally = 0.0;
+    double miningTally      = fraction(Mining.raw(player), Weights.PAR_MINING);
+    double combatTally      = 0.0;
     double explorationTally = 0.0;
-    double survivalTally = 0.0;
+    double survivalTally    = 0.0;
     double advancementTally = 0.0;
 
     double tally = 100.0 * (Weights.W_MINING      * miningTally +
                             Weights.W_COMBAT      * combatTally +
-                            Weights.W_EXPLORATION * explorationTally+
+                            Weights.W_EXPLORATION * explorationTally +
                             Weights.W_SURVIVAL    * survivalTally +
                             Weights.W_ADVANCEMENT * advancementTally);
 
