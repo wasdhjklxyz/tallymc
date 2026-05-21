@@ -9,6 +9,10 @@ import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.Color;
+import org.bukkit.entity.Firework;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.FireworkEffect;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -60,7 +64,20 @@ public class ScoreboardManager {
                 r.miningTally(), r.combatTally(), r.explorationTally(),
                 r.survivalTally(), r.advancementTally());
     }
+
+    UUID prevOverall = leaderOverall, prevMining = leaderMining,
+         prevCombat = leaderCombat, prevExploration = leaderExploration,
+         prevSurvival = leaderSurvival, prevAdvancement = leaderAdvancement;
+
     recomputeLeaders();
+
+    celebrate(prevOverall,     leaderOverall,     Color.fromRGB(0xFFAA00));
+    celebrate(prevMining,      leaderMining,      Color.fromRGB(0x55FFFF));
+    celebrate(prevCombat,      leaderCombat,      Color.fromRGB(0xFF5555));
+    celebrate(prevExploration, leaderExploration, Color.fromRGB(0x55FF55));
+    celebrate(prevSurvival,    leaderSurvival,    Color.fromRGB(0xFF55FF));
+    celebrate(prevAdvancement, leaderAdvancement, Color.fromRGB(0xFFFF55));
+
     List<TallyStore.Entry> ranked = store.ranked();
     for (Player p : Bukkit.getOnlinePlayers()) {
       render(p, ranked);
@@ -222,5 +239,27 @@ public class ScoreboardManager {
 
   private static Component blank(int n) {
     return Component.text("\u00A7r".repeat(n + 1));
+  }
+
+  private void celebrate(UUID oldLeader, UUID newLeader, Color color) {
+    if (newLeader == null) return;
+    if (newLeader.equals(oldLeader)) return;
+
+    Player p = Bukkit.getPlayer(newLeader);
+    if (p == null) return;
+    spawnFirework(p, color);
+  }
+
+  private void spawnFirework(Player p, Color color) {
+    Firework fw = p.getWorld().spawn(p.getLocation(), Firework.class);
+    FireworkMeta meta = fw.getFireworkMeta();
+    meta.addEffect(FireworkEffect.builder()
+        .withColor(color)
+        .withFade(color)
+        .with(FireworkEffect.Type.BALL_LARGE)
+        .trail(true)
+        .build());
+    meta.setPower(1);
+    fw.setFireworkMeta(meta);
   }
 }
