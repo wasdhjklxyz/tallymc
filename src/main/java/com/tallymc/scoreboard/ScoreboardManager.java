@@ -1,5 +1,6 @@
 package com.tallymc.scoreboard;
 
+import com.tallymc.store.TallyStore;
 import com.tallymc.tally.Calculator;
 
 import org.bukkit.Bukkit;
@@ -26,10 +27,13 @@ public class ScoreboardManager {
   private final Map<UUID, Scoreboard> boards = new HashMap<>();
   private volatile UUID leaderOverall, leaderMining, leaderCombat,
                         leaderExploration, leaderSurvival, leaderAdvancement;
+  private final TallyStore store;
+
+  public ScoreboardManager(TallyStore store) {
+    this.store = store;
+  }
 
   public void refreshAll() {
-    List<Map.Entry<Player, Integer>> ranked = new ArrayList<>();
-
     double bestMin = -1, bestCom = -1, bestExp = -1, bestSur = -1, bestAdv = -1;
     int bestOverall = Integer.MIN_VALUE;
     leaderOverall = leaderMining = leaderCombat =
@@ -38,18 +42,18 @@ public class ScoreboardManager {
     for (Player p : Bukkit.getOnlinePlayers()) {
       Calculator.Result r = Calculator.compute(p);
       int s = (int) Math.round(r.tally());
-      ranked.add(Map.entry(p, s));
+      store.put(p.getUniqueId(), p.getName(), s);
 
       UUID id = p.getUniqueId();
-      if (s > bestOverall)            { bestOverall = s; leaderOverall = id; }
-      if (r.miningTally()  > bestMin) { bestMin = r.miningTally();  leaderMining = id; }
-      if (r.combatTally()  > bestCom) { bestCom = r.combatTally();  leaderCombat = id; }
-      if (r.explorationTally() > bestExp) { bestExp = r.explorationTally(); leaderExploration = id; }
-      if (r.survivalTally() > bestSur){ bestSur = r.survivalTally(); leaderSurvival = id; }
+      if (s > bestOverall)               { bestOverall = s; leaderOverall = id; }
+      if (r.miningTally() > bestMin)     { bestMin = r.miningTally(); leaderMining = id; }
+      if (r.combatTally() > bestCom)     { bestCom = r.combatTally(); leaderCombat = id; }
+      if (r.explorationTally() > bestExp){ bestExp = r.explorationTally(); leaderExploration = id; }
+      if (r.survivalTally() > bestSur)   { bestSur = r.survivalTally(); leaderSurvival = id; }
       if (r.advancementTally() > bestAdv){ bestAdv = r.advancementTally(); leaderAdvancement = id; }
     }
 
-    ranked.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
+    List<TallyStore.Entry> ranked = store.ranked();
 
     for (Player p : Bukkit.getOnlinePlayers()) {
       render(p, ranked);
@@ -58,13 +62,14 @@ public class ScoreboardManager {
   }
 
   public void refresh(Player p) {
-    int s = (int) Math.round(Calculator.compute(p).tally());
-    List<Map.Entry<Player, Integer>> solo = new ArrayList<>();
-    solo.add(Map.entry(p, s));
-    render(p, solo);
+    Calculator.Result r = Calculator.compute(p);
+    int s = (int) Math.round(r.tally());
+    store.put(p.getUniqueId(), p.getName(), s);
+    render(p, store.ranked());
+    updateTabName(p);
   }
 
-  private void render(Player viewer, List<Map.Entry<Player, Integer>> ranked) {
+  private void render(Player viewer, List<TallyStore.Entry> ranked) {
     Scoreboard board = boards.computeIfAbsent(viewer.getUniqueId(),
         k -> Bukkit.getScoreboardManager().getNewScoreboard());
 
@@ -77,6 +82,7 @@ public class ScoreboardManager {
     obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
     Calculator.Result r = Calculator.compute(viewer);
+    UUID v = viewer.getUniqueId();
 
     List<Component> lines = new ArrayList<>();
 
@@ -84,12 +90,12 @@ public class ScoreboardManager {
 
     int shown = Math.min(MAX_RANKS, ranked.size());
     for (int i = 0; i < shown; i++) {
-      lines.add(rankLine(i, ranked.get(i).getKey(), ranked.get(i).getValue()));
+      lines.add(rankLine(i, ranked.get(i)));
     }
 
     int viewerRank = -1;
     for (int i = 0; i < ranked.size(); i++) {
-      if (ranked.get(i).getKey().getUniqueId().equals(viewer.getUniqueId())) {
+      if (ranked.get(i).id().equals(v)) {
         viewerRank = i;
         break;
       }
@@ -97,15 +103,12 @@ public class ScoreboardManager {
 
     if (viewerRank >= shown) {
       lines.add(Component.text("  ...", NamedTextColor.DARK_GRAY));
-      lines.add(rankLine(viewerRank,
-                         ranked.get(viewerRank).getKey(),
-                         ranked.get(viewerRank).getValue()));
+      lines.add(rankLine(viewerRank, ranked.get(viewerRank)));
     }
 
     lines.add(blank(0));
     lines.add(Component.text("Personal", NamedTextColor.DARK_GRAY, TextDecoration.BOLD));
 
-    UUID v = viewer.getUniqueId();
     lines.add(catLine(" ⛏", "Mining", r.miningTally(), NamedTextColor.AQUA,
                       v.equals(leaderMining)));
     lines.add(catLine(" ⚔", "Combat", r.combatTally(), NamedTextColor.RED,
@@ -127,6 +130,7 @@ public class ScoreboardManager {
 
   public void remove(Player p) {
     boards.remove(p.getUniqueId());
+    p.playerListName(null);
   }
 
   private void updateTabName(Player p) {
@@ -159,14 +163,14 @@ public class ScoreboardManager {
     obj.getScore(entry).setScore(score);
   }
 
-  private static Component rankLine(int index, Player p, int score) {
+  private static Component rankLine(int index, TallyStore.Entry e) {
     Component prefix = (index == 0)
         ? Component.text(" ♛ ", NamedTextColor.GOLD)
         : Component.text(" ");
     return Component.text()
         .append(prefix)
-        .append(Component.text(p.getName() + " ", NamedTextColor.GRAY))
-        .append(Component.text(String.valueOf(score), NamedTextColor.WHITE))
+        .append(Component.text(e.name() + " ", NamedTextColor.GRAY))
+        .append(Component.text(String.valueOf(e.tally()), NamedTextColor.WHITE))
         .build();
   }
 
