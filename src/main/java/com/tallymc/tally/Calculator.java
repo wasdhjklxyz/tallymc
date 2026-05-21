@@ -7,22 +7,15 @@ public class Calculator {
                        double explorationTally, double survivalTally,
                        double advancementTally) {}
 
-  private static double fraction(double raw, double par) {
-    return Math.min(1.0, Math.max(0.0, raw / par));
-  }
-
   public static Result compute(Player player) {
-    double miningTally      = fraction(Mining.raw(player), Weights.PAR_MINING);
+    double miningTally      = Mining.raw(player);
     double combatTally      = 0.0;
     double explorationTally = 0.0;
     double survivalTally    = 0.0;
     double advancementTally = 0.0;
 
-    double tally = 100.0 * (Weights.W_MINING      * miningTally +
-                            Weights.W_COMBAT      * combatTally +
-                            Weights.W_EXPLORATION * explorationTally +
-                            Weights.W_SURVIVAL    * survivalTally +
-                            Weights.W_ADVANCEMENT * advancementTally);
+    double tally = miningTally + combatTally + explorationTally +
+                   survivalTally + advancementTally;
 
     return new Result(tally, miningTally, combatTally, explorationTally,
                       survivalTally, advancementTally);

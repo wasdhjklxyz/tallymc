@@ -6,18 +6,6 @@ import org.bukkit.entity.EntityType;
 import java.util.Map;
 
 public class Weights {
-  public static final double W_MINING      = 0.25;
-  public static final double W_COMBAT      = 0.25;
-  public static final double W_EXPLORATION = 0.20;
-  public static final double W_SURVIVAL    = 0.15;
-  public static final double W_ADVANCEMENT = 0.15;
-
-  public static final double PAR_MINING      = 2500.0;
-  public static final double PAR_COMBAT      = 2000.0;
-  public static final double PAR_EXPLORATION = 1000.0;
-  public static final double PAR_SURVIVAL    = 300.0;
-  public static final double PAR_ADVANCEMENT = 1200.0;
-
   public static final Map<Material, Double> ORE_WEIGHTS = Map.ofEntries(
       Map.entry(Material.ANCIENT_DEBRIS,   40.0),
       Map.entry(Material.EMERALD_ORE,      25.0),
@@ -42,7 +30,7 @@ public class Weights {
       Material.DEEPSLATE_COPPER_ORE,   Material.COPPER_ORE
   );
 
-  public static final double DEEPSLATE_MULT = 1.3;
+  public static final double DEEPSLATE_MULT = 1.2;
 
   public static final Map<EntityType, Double> KILL_WEIGHTS = Map.ofEntries(
       Map.entry(EntityType.ENDER_DRAGON,       500.0),
