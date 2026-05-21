@@ -3,11 +3,11 @@ package com.tallymc.tally;
 import org.bukkit.entity.Player;
 
 public class Calculator {
-  public static Result(double tally, double miningFrac, double combatFrac,
+  public record Result(double tally, double miningFrac, double combatFrac,
                        double explorationFrac, double survivalFrac,
                        double advancementFrac) {}
 
-  private static Result compute(Player player) {
+  public static Result compute(Player player) {
     double miningFrac = Mining.raw(player);
     double combatFrac = 0.0;
     double explorationFrac = 0.0;
