@@ -9,20 +9,26 @@ public class Weights {
   public static final double W_MINING      = 0.25;
   public static final double W_COMBAT      = 0.25;
   public static final double W_EXPLORATION = 0.20;
-  public static final double W_SURVIVAL    = 0.10;
-  public static final double W_ADVANCEMENT = 0.10;
+  public static final double W_SURVIVAL    = 0.15;
+  public static final double W_ADVANCEMENT = 0.15;
+
+  public static final double PAR_MINING      = 2500.0;
+  public static final double PAR_COMBAT      = 2000.0;
+  public static final double PAR_EXPLORATION = 1000.0;
+  public static final double PAR_SURVIVAL    = 300.0;
+  public static final double PAR_ADVANCEMENT = 1200.0;
 
   public static final Map<Material, Double> ORE_WEIGHTS = Map.ofEntries(
-      Map.entry(Material.ANCIENT_DEBRIS,            40.0),
-      Map.entry(Material.EMERALD_ORE,               25.0),
-      Map.entry(Material.DIAMOND_ORE,               15.0),
-      Map.entry(Material.GOLD_ORE,                   3.0),
-      Map.entry(Material.LAPIS_ORE,                  3.0),
-      Map.entry(Material.REDSTONE_ORE,               2.0),
-      Map.entry(Material.IRON_ORE,                   2.0),
-      Map.entry(Material.COAL_ORE,                   1.0),
-      Map.entry(Material.NETHER_QUARTZ_ORE,          1.0),
-      Map.entry(Material.COPPER_ORE,                 1.0)
+      Map.entry(Material.ANCIENT_DEBRIS,   40.0),
+      Map.entry(Material.EMERALD_ORE,      25.0),
+      Map.entry(Material.DIAMOND_ORE,      15.0),
+      Map.entry(Material.GOLD_ORE,          3.0),
+      Map.entry(Material.LAPIS_ORE,         3.0),
+      Map.entry(Material.REDSTONE_ORE,      2.0),
+      Map.entry(Material.IRON_ORE,          2.0),
+      Map.entry(Material.COAL_ORE,          1.0),
+      Map.entry(Material.NETHER_QUARTZ_ORE, 1.0),
+      Map.entry(Material.COPPER_ORE,        1.0)
   );
 
   public static final Map<Material, Material> DEEPSLATE_VARIANTS = Map.of(
@@ -38,23 +44,74 @@ public class Weights {
 
   public static final double DEEPSLATE_MULT = 1.3;
 
-  public static final Map<EntityType, Double> KILL_WEIGHTS = Map.of(
-      EntityType.ENDER_DRAGON,   500.0,
-      EntityType.WITHER,         300.0,
-      EntityType.WARDEN,         250.0,
-      EntityType.ELDER_GUARDIAN, 100.0,
-      EntityType.PIGLIN_BRUTE,    30.0
+  public static final Map<EntityType, Double> KILL_WEIGHTS = Map.ofEntries(
+      Map.entry(EntityType.ENDER_DRAGON,       500.0),
+      Map.entry(EntityType.WITHER,             300.0),
+      Map.entry(EntityType.WARDEN,             250.0),
+      Map.entry(EntityType.ELDER_GUARDIAN,     100.0),
+      Map.entry(EntityType.RAVAGER,             50.0),
+      Map.entry(EntityType.EVOKER,              45.0),
+      Map.entry(EntityType.PIGLIN_BRUTE,        30.0),
+      Map.entry(EntityType.HOGLIN,              15.0),
+      Map.entry(EntityType.BREEZE,              15.0),
+      Map.entry(EntityType.SHULKER,             12.0),
+      Map.entry(EntityType.GUARDIAN,            10.0),
+      Map.entry(EntityType.BLAZE,                8.0),
+      Map.entry(EntityType.GHAST,                8.0),
+      Map.entry(EntityType.VINDICATOR,           8.0),
+      Map.entry(EntityType.PILLAGER,             5.0),
+      Map.entry(EntityType.WITHER_SKELETON,      5.0),
+      Map.entry(EntityType.ENDERMAN,             4.0),
+      Map.entry(EntityType.PIGLIN,               3.0),
+      Map.entry(EntityType.ZOMBIFIED_PIGLIN,     3.0),
+      Map.entry(EntityType.CREEPER,              3.0),
+      Map.entry(EntityType.WITCH,                3.0)
   );
 
-  public static final double WEIGHT_RAID_WIN     = 60.0;
-  public static final double WEIGHT_HOSTILE_MOB  = 1.0;
+  public static final double WEIGHT_RAID_WIN    = 60.0;
+  public static final double WEIGHT_HOSTILE_MOB = 1.0;
 
-  public static final double EXPLORE_BIOME       = 20.0;
-  public static final double EXPLORE_STRUCTURE   = 30.0;
-  public static final double DIV_WALK_CM         = 10_000_00.0; // 10km in cm
-  public static final double DIV_BOAT_CM         = 15_000_00.0; // 15km in cm
-  public static final double DIV_ELYTRA_CM       = 20_000_00.0; // 20km in cm
+  public static final double EXPLORE_BIOME     = 20.0;
+  public static final double EXPLORE_STRUCTURE = 30.0;
+  public static final double DIV_WALK_CM       = 10_000_00.0; // 10 km in cm
+  public static final double DIV_BOAT_CM       = 15_000_00.0; // 15 km in cm
+  public static final double DIV_ELYTRA_CM     = 20_000_00.0; // 20 km in cm
 
-  public static final double SURVIVAL_PER_HOUR  = 2.0;
+  public static final double SURVIVAL_PER_HOUR  =  2.0;
   public static final double SURVIVAL_PER_DEATH = -10.0;
+
+  public enum Tier {
+    COMMON(5.0), UNCOMMON(15.0), HARD(40.0), EXTREME(300.0);
+    public final double weight;
+    Tier(double weight) { this.weight = weight; }
+  }
+
+  public static final Map<String, Tier> ADVANCEMENT_TIERS = Map.ofEntries(
+      Map.entry("nether/all_effects",         Tier.EXTREME),
+      Map.entry("adventure/adventuring_time", Tier.EXTREME),
+      Map.entry("husbandry/balanced_diet",    Tier.EXTREME),
+      Map.entry("end/levitate",               Tier.EXTREME),
+
+      Map.entry("adventure/kill_all_mobs",       Tier.HARD),
+      Map.entry("nether/create_full_beacon",     Tier.HARD),
+      Map.entry("husbandry/froglights",          Tier.HARD),
+      Map.entry("husbandry/obtain_sniffer_egg",  Tier.HARD),
+      Map.entry("adventure/blowback",            Tier.HARD),
+      Map.entry("nether/get_wither_skull",       Tier.HARD),
+      Map.entry("nether/summon_wither",          Tier.HARD),
+      Map.entry("end/kill_dragon",               Tier.HARD),
+      Map.entry("adventure/hero_of_the_village", Tier.HARD),
+      Map.entry("husbandry/complete_catalogue",  Tier.HARD),
+      Map.entry("adventure/totem_of_undying",    Tier.HARD),
+
+      Map.entry("story/enter_the_nether",          Tier.UNCOMMON),
+      Map.entry("story/follow_ender_eye",          Tier.UNCOMMON),
+      Map.entry("story/enter_the_end",             Tier.UNCOMMON),
+      Map.entry("nether/obtain_ancient_debris",    Tier.UNCOMMON),
+      Map.entry("nether/netherite_armor",          Tier.UNCOMMON),
+      Map.entry("story/mine_diamond",              Tier.UNCOMMON),
+      Map.entry("adventure/trade_at_world_height", Tier.UNCOMMON),
+      Map.entry("end/elytra",                      Tier.UNCOMMON),
+      Map.entry("end/dragon_egg",                  Tier.UNCOMMON)
+  );
 }
