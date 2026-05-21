@@ -28,6 +28,26 @@ public class ScoreboardManager {
   private volatile UUID leaderOverall, leaderMining, leaderCombat,
                         leaderExploration, leaderSurvival, leaderAdvancement;
 
+  private static final class Leader {
+    double best = Double.NEGATIVE_INFINITY;
+    UUID id = null;
+    boolean tied = false;
+
+    void consider(UUID candidate, double value) {
+      if (value > best) {
+        best = value;
+        id = candidate;
+        tied = false;
+      } else if (value == best) {
+        tied = true;
+      }
+    }
+
+    UUID result() {
+      return tied ? null : id;
+    }
+  }
+
   public ScoreboardManager(TallyStore store) {
     this.store = store;
   }
@@ -60,19 +80,25 @@ public class ScoreboardManager {
   }
 
   private void recomputeLeaders() {
-    leaderOverall = leaderMining = leaderCombat =
-        leaderExploration = leaderSurvival = leaderAdvancement = null;
-    int bestOverall = Integer.MIN_VALUE;
-    double bestMin = -1, bestCom = -1, bestExp = -1, bestSur = -1, bestAdv = -1;
+    Leader overall = new Leader(), mining = new Leader(),
+           combat = new Leader(), exploration = new Leader(),
+           survival = new Leader(), advancement = new Leader();
 
     for (TallyStore.Entry e : store.entries()) {
-      if (e.tally()       > bestOverall) { bestOverall = e.tally();   leaderOverall = e.id(); }
-      if (e.mining()      > bestMin)     { bestMin = e.mining();      leaderMining = e.id(); }
-      if (e.combat()      > bestCom)     { bestCom = e.combat();      leaderCombat = e.id(); }
-      if (e.exploration() > bestExp)     { bestExp = e.exploration(); leaderExploration = e.id(); }
-      if (e.survival()    > bestSur)     { bestSur = e.survival();    leaderSurvival = e.id(); }
-      if (e.advancement() > bestAdv)     { bestAdv = e.advancement(); leaderAdvancement = e.id(); }
+      overall.consider(e.id(), e.tally());
+      mining.consider(e.id(), e.mining());
+      combat.consider(e.id(), e.combat());
+      exploration.consider(e.id(), e.exploration());
+      survival.consider(e.id(), e.survival());
+      advancement.consider(e.id(), e.advancement());
     }
+
+    leaderOverall     = overall.result();
+    leaderMining      = mining.result();
+    leaderCombat      = combat.result();
+    leaderExploration = exploration.result();
+    leaderSurvival    = survival.result();
+    leaderAdvancement = advancement.result();
   }
 
   private void render(Player viewer, List<TallyStore.Entry> ranked) {
