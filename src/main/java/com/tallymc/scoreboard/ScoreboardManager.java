@@ -143,12 +143,13 @@ public class ScoreboardManager {
 
   private static Component catLine(String icon, String name, double value,
                                    NamedTextColor color, boolean isLeader) {
-    var b = Component.text()
-        .append(Component.text(icon + " ", color))
-        .append(Component.text(name + " ", NamedTextColor.WHITE));
+    var b = Component.text();
     if (isLeader) {
-      b.append(Component.text("♛ ", color));
+      b.append(Component.text(" ♛" + icon + " ", color));
+    } else {
+      b.append(Component.text(" " + icon + " ", color));
     }
+    b.append(Component.text(name + " ", NamedTextColor.GRAY));
     b.append(Component.text(String.format("%.0f", value), color));
     return b.build();
   }
@@ -161,11 +162,11 @@ public class ScoreboardManager {
   private static Component rankLine(int index, Player p, int score) {
     Component prefix = (index == 0)
         ? Component.text(" ♛ ", NamedTextColor.GOLD)
-        : Component.text(" " + (index + 1) + ". ", NamedTextColor.GRAY);
+        : Component.text(" ");
     return Component.text()
         .append(prefix)
-        .append(Component.text(p.getName() + " ", NamedTextColor.WHITE))
-        .append(Component.text(String.valueOf(score), NamedTextColor.YELLOW))
+        .append(Component.text(p.getName() + " ", NamedTextColor.GRAY))
+        .append(Component.text(String.valueOf(score), NamedTextColor.WHITE))
         .build();
   }
 
