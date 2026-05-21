@@ -32,7 +32,7 @@ public class TallyMC extends JavaPlugin {
     Bukkit.getPluginManager().registerEvents(
         new ChatListener(scoreboard), this);
     Bukkit.getScheduler().runTaskTimer(
-        this, store::save, 6000L, 6000L);
+        this, store::save, 20L, 1200L);
 
     getLogger().info("TallyMC enabled");
   }
